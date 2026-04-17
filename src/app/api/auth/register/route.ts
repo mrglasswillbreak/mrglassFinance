@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { jsonCreated, jsonError } from "@/lib/http";
 import { registerSchema } from "@/lib/validation/auth";
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
 
   const passwordHash = await bcrypt.hash(password, 12);
 
-  const created = await prisma.$transaction(async (tx) => {
+  const created = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const tenant = await tx.tenant.create({ data: { name: tenantName } });
     const user = await tx.user.create({
       data: { email, passwordHash, fullName },
