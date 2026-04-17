@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MrGlassFinance
 
-## Getting Started
+MrGlassFinance is a multi-tenant personal finance SaaS built with Next.js App Router and Prisma.  
+It supports account management, transaction tracking, budgeting, insights, notifications, and JWT-based authentication.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **Database ORM:** Prisma 7
+- **Database:** PostgreSQL
+- **Auth:** JWT + HttpOnly cookies
+- **State/Data:** React Query + Zustand
+- **UI:** Tailwind CSS + custom UI components
+
+## Core Features
+
+- Multi-tenant user and membership model
+- Secure registration/login/refresh/logout flow
+- Accounts, categories, and transaction CRUD APIs
+- Budget creation and status tracking
+- Dashboard KPIs and spending insights
+- User profile/preferences and notification APIs
+
+## Project Structure
+
+```text
+src/
+  app/                  # App Router pages and API route handlers
+  components/           # Reusable UI/layout components
+  lib/                  # Auth, Prisma, validation, API helpers
+  providers/            # React providers (query client, etc.)
+  store/                # Client state (Zustand)
+prisma/
+  schema.prisma         # Data model
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Required Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env` file in the project root (or configure in Vercel project settings):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mrglassfinance?schema=public"
+JWT_SECRET="replace-with-a-strong-secret"
+```
 
-## Learn More
+### Variable Reference
 
-To learn more about Next.js, take a look at the following resources:
+- `DATABASE_URL` (**required**)  
+  PostgreSQL connection string used by Prisma at runtime and during build steps that execute server logic.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `JWT_SECRET` (**required**)  
+  Secret used to sign and verify JWT access tokens. Use a long, random value in production.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Local Development
 
-## Deploy on Vercel
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Configure environment variables (`.env`).
+3. Generate Prisma client:
+   ```bash
+   npm run prisma:generate
+   ```
+4. Run database migrations:
+   ```bash
+   npm run prisma:migrate
+   ```
+5. Start the app:
+   ```bash
+   npm run dev
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` — start local development server
+- `npm run build` — generate Prisma client and build Next.js app
+- `npm run start` — run production server
+- `npm run lint` — run ESLint
+- `npm test` — run unit tests (Jest)
+- `npm run test:e2e` — run Playwright end-to-end tests
+- `npm run prisma:generate` — regenerate Prisma client
+- `npm run prisma:migrate` — run Prisma migrations
+
+## Deployment (Vercel)
+
+1. Add `DATABASE_URL` and `JWT_SECRET` in your Vercel project environment variables.
+2. Ensure variables are available to the environments you deploy from (Preview/Production).
+3. Deploy normally; the build command runs:
+   ```bash
+   prisma generate && next build
+   ```
+
+## Quality Checks
+
+Use the standard validation flow before shipping changes:
+
+```bash
+npm run lint && npm test && npm run build
+```

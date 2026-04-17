@@ -1,4 +1,3 @@
-import { prisma } from "@/lib/prisma";
 import { getAccessTokenFromCookies, verifyAccessToken } from "@/lib/auth/tokens";
 
 export type AuthContext = {
@@ -37,6 +36,7 @@ export async function requireAuthContext(): Promise<AuthContext> {
 export async function getCurrentUser() {
   const context = await getAuthContext();
   if (!context) return null;
+  const { prisma } = await import("@/lib/prisma");
 
   return prisma.user.findUnique({
     where: { id: context.userId },
