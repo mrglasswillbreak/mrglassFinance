@@ -27,7 +27,7 @@ function getPrismaClient() {
   return client;
 }
 
-export const prisma = new Proxy({} as PrismaClient, {
+const prismaProxyHandler: ProxyHandler<PrismaClient> = {
   get(_target, property) {
     const client = getPrismaClient();
     const value = (client as unknown as Record<PropertyKey, unknown>)[property];
@@ -36,4 +36,6 @@ export const prisma = new Proxy({} as PrismaClient, {
     }
     return value;
   },
-});
+};
+
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, prismaProxyHandler);
