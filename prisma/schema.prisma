@@ -1,0 +1,180 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MemberRole {
+  OWNER
+  MEMBER
+}
+
+enum AccountType {
+  CASH
+  BANK
+  CRYPTO
+  CREDIT
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum NotificationType {
+  BUDGET_WARNING
+  BUDGET_EXCEEDED
+  SYSTEM
+}
+
+model Tenant {
+  id            String          @id @default(cuid())
+  name          String
+  plan          String          @default("free")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  members       TenantMember[]
+  accounts      Account[]
+  categories    Category[]
+  transactions  Transaction[]
+  budgets       Budget[]
+  notifications Notification[]
+}
+
+model User {
+  id             String         @id @default(cuid())
+  email          String         @unique
+  passwordHash   String
+  fullName       String?
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  memberships    TenantMember[]
+  refreshTokens  RefreshToken[]
+  notifications  Notification[]
+}
+
+model TenantMember {
+  id        String     @id @default(cuid())
+  tenantId  String
+  userId    String
+  role      MemberRole @default(MEMBER)
+  createdAt DateTime   @default(now())
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([userId])
+}
+
+model Account {
+  id             String        @id @default(cuid())
+  tenantId       String
+  name           String
+  type           AccountType
+  currency       String        @default("USD")
+  openingBalance Int           @default(0)
+  isArchived     Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  tenant         Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
+  budgets        Budget[]
+
+  @@index([tenantId])
+}
+
+model Category {
+  id           String        @id @default(cuid())
+  tenantId     String
+  name         String
+  type         TransactionType
+  color        String?
+  icon         String?
+  isDefault    Boolean       @default(false)
+  isArchived   Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([tenantId, name, type])
+  @@index([tenantId, type])
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  tenantId    String
+  accountId   String
+  categoryId  String?
+  createdById String
+  type        TransactionType
+  amountCents Int
+  note        String?
+  occurredAt  DateTime
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  account     Account         @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  category    Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, occurredAt(sort: Desc)])
+  @@index([tenantId, accountId, occurredAt(sort: Desc)])
+  @@index([tenantId, categoryId, occurredAt(sort: Desc)])
+}
+
+model Budget {
+  id                String    @id @default(cuid())
+  tenantId          String
+  categoryId        String?
+  accountId         String?
+  periodMonth       DateTime
+  limitCents        Int
+  alertThresholdPct Int       @default(80)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  tenant            Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category          Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  account           Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, periodMonth])
+  @@unique([tenantId, periodMonth, categoryId, accountId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  tenantId  String
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  payload   Json?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  tenant    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt(sort: Desc)])
+  @@index([tenantId])
+}
+
+model RefreshToken {
+  id         String    @id @default(cuid())
+  userId     String
+  tokenHash  String
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
