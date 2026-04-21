@@ -18,8 +18,10 @@ export async function PATCH(request: Request, { params }: Params) {
         ...(parsed.data.categoryId !== undefined ? { categoryId: parsed.data.categoryId } : {}),
         ...(parsed.data.accountId !== undefined ? { accountId: parsed.data.accountId } : {}),
         ...(parsed.data.periodMonth ? { periodMonth: new Date(parsed.data.periodMonth) } : {}),
-        ...(parsed.data.limitCents ? { limitCents: parsed.data.limitCents } : {}),
-        ...(parsed.data.alertThresholdPct ? { alertThresholdPct: parsed.data.alertThresholdPct } : {}),
+        ...(parsed.data.limitCents !== undefined ? { limitCents: parsed.data.limitCents } : {}),
+        ...(parsed.data.alertThresholdPct !== undefined
+          ? { alertThresholdPct: parsed.data.alertThresholdPct }
+          : {}),
       },
     });
     if (!updated.count) return jsonError("Budget not found", 404);
