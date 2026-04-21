@@ -1,32 +1,29 @@
 import { prisma } from "@/lib/prisma";
 import { jsonCreated, jsonError, jsonOk } from "@/lib/http";
 import { withAuth } from "@/lib/auth/route-guard";
-import { transactionSchema } from "@/lib/validation/finance";
-
-function parseQuery(url: string) {
-  const { searchParams } = new URL(url);
-  const page = Math.max(1, Number(searchParams.get("page") ?? "1"));
-  const pageSize = Math.min(100, Math.max(1, Number(searchParams.get("pageSize") ?? "20")));
-  const accountId = searchParams.get("accountId") ?? undefined;
-  const categoryId = searchParams.get("categoryId") ?? undefined;
-  const type = searchParams.get("type") ?? undefined;
-  const startDate = searchParams.get("startDate") ?? undefined;
-  const endDate = searchParams.get("endDate") ?? undefined;
-
-  return { page, pageSize, accountId, categoryId, type, startDate, endDate };
-}
+import { transactionQuerySchema, transactionSchema } from "@/lib/validation/finance";
 
 export async function GET(request: Request) {
   return withAuth(async (ctx) => {
-    const { page, pageSize, accountId, categoryId, type, startDate, endDate } = parseQuery(
-      request.url,
-    );
+    const searchParams = new URL(request.url).searchParams;
+    const parsedQuery = transactionQuerySchema.safeParse({
+      page: searchParams.get("page") ?? undefined,
+      pageSize: searchParams.get("pageSize") ?? undefined,
+      accountId: searchParams.get("accountId") ?? undefined,
+      categoryId: searchParams.get("categoryId") ?? undefined,
+      type: searchParams.get("type") ?? undefined,
+      startDate: searchParams.get("startDate") ?? undefined,
+      endDate: searchParams.get("endDate") ?? undefined,
+    });
+    if (!parsedQuery.success) return jsonError("Invalid query params");
+
+    const { page, pageSize, accountId, categoryId, type, startDate, endDate } = parsedQuery.data;
 
     const where = {
       tenantId: ctx.tenantId,
       ...(accountId ? { accountId } : {}),
       ...(categoryId ? { categoryId } : {}),
-      ...(type ? { type: type as "INCOME" | "EXPENSE" | "TRANSFER" } : {}),
+      ...(type ? { type } : {}),
       ...(startDate || endDate
         ? {
             occurredAt: {
