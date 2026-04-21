@@ -28,6 +28,16 @@ export const transactionSchema = z.object({
   occurredAt: z.string().datetime(),
 });
 
+export const transactionQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  accountId: z.string().min(1).optional(),
+  categoryId: z.string().min(1).optional(),
+  type: transactionTypeEnum.optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+});
+
 export const budgetSchema = z.object({
   categoryId: z.string().optional().nullable(),
   accountId: z.string().optional().nullable(),
@@ -44,5 +54,12 @@ export const preferenceSchema = z.object({
   currency: z.string().length(3),
   locale: z.string().min(2).max(20),
   theme: themeEnum,
+  weekStart: weekStartEnum,
+});
+
+export const onboardingSchema = z.object({
+  fullName: z.string().min(2).max(80),
+  currency: z.string().length(3),
+  locale: z.string().min(2).max(20),
   weekStart: weekStartEnum,
 });
