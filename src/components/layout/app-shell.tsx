@@ -29,6 +29,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation menu"
+          className="fixed inset-0 z-20 bg-slate-950/30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       <div className="mx-auto flex max-w-7xl">
         <aside
           className={cn(
