@@ -272,6 +272,16 @@ export default function TransactionsPage() {
           >
             Reset filters
           </Button>
+          <Select
+            value={String(filters.pageSize)}
+            onChange={(event) =>
+              setFilters((current) => ({ ...current, page: 1, pageSize: Number(event.target.value) }))
+            }
+          >
+            <option value="20">20 / page</option>
+            <option value="50">50 / page</option>
+            <option value="100">100 / page</option>
+          </Select>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
