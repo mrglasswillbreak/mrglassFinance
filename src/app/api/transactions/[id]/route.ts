@@ -19,7 +19,7 @@ export async function PATCH(request: Request, { params }: Params) {
         ...(payload.accountId ? { accountId: payload.accountId } : {}),
         ...(payload.categoryId !== undefined ? { categoryId: payload.categoryId } : {}),
         ...(payload.type ? { type: payload.type } : {}),
-        ...(payload.amountCents ? { amountCents: payload.amountCents } : {}),
+        ...(payload.amountCents !== undefined ? { amountCents: payload.amountCents } : {}),
         ...(payload.note !== undefined ? { note: payload.note } : {}),
         ...(payload.occurredAt ? { occurredAt: new Date(payload.occurredAt) } : {}),
       },
