@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   const { email, password } = parsed.data;
   const user = await prisma.user.findUnique({
     where: { email },
-    include: { memberships: true },
+    include: { memberships: true, preference: { select: { id: true } } },
   });
   if (!user || !user.isActive) {
     return jsonError("Invalid credentials", 401);
@@ -52,5 +52,8 @@ export async function POST(request: Request) {
 
   await setAuthCookies(accessToken, refreshToken);
 
-  return jsonOk({ user: { id: user.id, email: user.email } });
+  return jsonOk({
+    user: { id: user.id, email: user.email },
+    requiresOnboarding: !user.preference,
+  });
 }

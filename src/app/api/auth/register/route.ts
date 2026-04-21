@@ -78,5 +78,8 @@ export async function POST(request: Request) {
 
   await setAuthCookies(accessToken, refreshToken);
 
-  return jsonCreated({ user: { id: created.user.id, email: created.user.email } });
+  return jsonCreated({
+    user: { id: created.user.id, email: created.user.email },
+    requiresOnboarding: true,
+  });
 }
