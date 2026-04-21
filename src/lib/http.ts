@@ -23,7 +23,7 @@ export function handleRouteError(error: unknown) {
   }
 
   if (error instanceof Prisma.PrismaClientInitializationError) {
-    return jsonError("The service is temporarily unavailable. Please try again in a moment.", 503);
+    return jsonError("Unable to connect to the database. Please try again in a moment.", 503);
   }
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -40,7 +40,15 @@ export function handleRouteError(error: unknown) {
     }
   }
 
-  console.error("Unhandled API error", error);
+  if (error instanceof Error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Unhandled API error", error);
+    } else {
+      console.error("Unhandled API error", { name: error.name, message: error.message });
+    }
+  } else {
+    console.error("Unhandled API error", { message: "Unknown error" });
+  }
   return jsonError("Something went wrong. Please try again.", 500);
 }
 
