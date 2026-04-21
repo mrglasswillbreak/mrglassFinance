@@ -156,6 +156,71 @@ export default function TransactionsPage() {
 
       <Card>
         <h2 className="mb-3 text-sm font-semibold">Transactions</h2>
+        <div className="mb-4 grid gap-3 md:grid-cols-6">
+          <Select
+            value={filters.accountId}
+            onChange={(event) =>
+              setFilters((current) => ({ ...current, page: 1, accountId: event.target.value }))
+            }
+          >
+            <option value="">All accounts</option>
+            {accounts.data?.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.name}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={filters.categoryId}
+            onChange={(event) =>
+              setFilters((current) => ({ ...current, page: 1, categoryId: event.target.value }))
+            }
+          >
+            <option value="">All categories</option>
+            {categories.data?.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={filters.type}
+            onChange={(event) => setFilters((current) => ({ ...current, page: 1, type: event.target.value }))}
+          >
+            <option value="">All types</option>
+            <option value="EXPENSE">Expense</option>
+            <option value="INCOME">Income</option>
+            <option value="TRANSFER">Transfer</option>
+          </Select>
+          <Input
+            type="datetime-local"
+            value={filters.startDate}
+            onChange={(event) =>
+              setFilters((current) => ({ ...current, page: 1, startDate: event.target.value }))
+            }
+          />
+          <Input
+            type="datetime-local"
+            value={filters.endDate}
+            onChange={(event) => setFilters((current) => ({ ...current, page: 1, endDate: event.target.value }))}
+          />
+          <Button
+            variant="secondary"
+            onClick={() =>
+              setFilters((current) => ({
+                ...current,
+                page: 1,
+                accountId: "",
+                categoryId: "",
+                type: "",
+                startDate: "",
+                endDate: "",
+              }))
+            }
+          >
+            Reset filters
+          </Button>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -185,6 +250,32 @@ export default function TransactionsPage() {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="mt-4 flex items-center justify-between">
+          <p className="text-sm text-slate-500">
+            Page {transactions.data?.page ?? 1} of {transactions.data?.totalPages ?? 1}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              disabled={(transactions.data?.page ?? 1) <= 1}
+              onClick={() => setFilters((current) => ({ ...current, page: Math.max(1, current.page - 1) }))}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="secondary"
+              disabled={(transactions.data?.page ?? 1) >= (transactions.data?.totalPages ?? 1)}
+              onClick={() =>
+                setFilters((current) => ({
+                  ...current,
+                  page: Math.min(transactions.data?.totalPages ?? current.page + 1, current.page + 1),
+                }))
+              }
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </Card>
     </div>
