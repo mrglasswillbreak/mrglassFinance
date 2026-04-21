@@ -25,6 +25,7 @@ type TransactionResponse = { items: Transaction[]; total: number; page: number; 
 
 export default function TransactionsPage() {
   const queryClient = useQueryClient();
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     page: 1,
     pageSize: 20,
@@ -82,6 +83,27 @@ export default function TransactionsPage() {
       }),
     onSuccess: async () => {
       setForm((current) => ({ ...current, amount: "", note: "" }));
+      setEditingId(null);
+      await queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
+    },
+  });
+  const updateTx = useMutation({
+    mutationFn: async () =>
+      apiFetch(`/api/transactions/${editingId}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          accountId: form.accountId,
+          categoryId: form.categoryId || null,
+          type: form.type,
+          amountCents: toCents(Number(form.amount)),
+          note: form.note || null,
+          occurredAt: new Date(form.occurredAt).toISOString(),
+        }),
+      }),
+    onSuccess: async () => {
+      setForm((current) => ({ ...current, amount: "", note: "" }));
+      setEditingId(null);
       await queryClient.invalidateQueries({ queryKey: ["transactions"] });
       await queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
     },
@@ -97,6 +119,19 @@ export default function TransactionsPage() {
       await queryClient.invalidateQueries({ queryKey: ["dashboard-summary"] });
     },
   });
+
+  function beginEdit(transaction: Transaction) {
+    setEditingId(transaction.id);
+    setForm({
+      accountId: accounts.data?.find((account) => account.name === transaction.account.name)?.id ?? "",
+      categoryId:
+        categories.data?.find((category) => category.name === (transaction.category?.name ?? ""))?.id ?? "",
+      type: transaction.type,
+      amount: (transaction.amountCents / 100).toFixed(2),
+      note: transaction.note ?? "",
+      occurredAt: new Date(transaction.occurredAt).toISOString().slice(0, 16),
+    });
+  }
 
   if (accounts.isLoading || categories.isLoading || transactions.isLoading) {
     return <div className="h-44 animate-pulse rounded-xl bg-slate-200" />;
@@ -147,11 +182,27 @@ export default function TransactionsPage() {
         </div>
         <Button
           className="mt-3"
-          disabled={!form.accountId || !form.amount || createTx.isPending}
-          onClick={() => createTx.mutate()}
+          disabled={!form.accountId || !form.amount || createTx.isPending || updateTx.isPending}
+          onClick={() => (editingId ? updateTx.mutate() : createTx.mutate())}
         >
-          {createTx.isPending ? "Saving..." : "Add transaction"}
+          {createTx.isPending || updateTx.isPending
+            ? "Saving..."
+            : editingId
+              ? "Save transaction"
+              : "Add transaction"}
         </Button>
+        {editingId && (
+          <Button
+            className="ml-2 mt-3"
+            variant="secondary"
+            onClick={() => {
+              setEditingId(null);
+              setForm((current) => ({ ...current, amount: "", note: "" }));
+            }}
+          >
+            Cancel edit
+          </Button>
+        )}
       </Card>
 
       <Card>
@@ -241,11 +292,16 @@ export default function TransactionsPage() {
                   <td className="py-2">{transaction.category?.name ?? "Uncategorized"}</td>
                   <td className="py-2">{transaction.type}</td>
                   <td className="py-2 text-right">{formatCurrency(transaction.amountCents)}</td>
-                  <td className="py-2 text-right">
-                    <Button variant="ghost" onClick={() => deleteTx.mutate(transaction.id)}>
-                      Delete
-                    </Button>
-                  </td>
+                    <td className="py-2 text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button variant="ghost" onClick={() => beginEdit(transaction)}>
+                          Edit
+                        </Button>
+                        <Button variant="ghost" onClick={() => deleteTx.mutate(transaction.id)}>
+                          Delete
+                        </Button>
+                      </div>
+                    </td>
                 </tr>
               ))}
             </tbody>
