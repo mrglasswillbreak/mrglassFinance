@@ -17,8 +17,10 @@ type Transaction = {
   type: "INCOME" | "EXPENSE" | "TRANSFER";
   occurredAt: string;
   note: string | null;
-  account: { name: string };
-  category: { name: string | null } | null;
+  accountId: string;
+  categoryId: string | null;
+  account: { id: string; name: string };
+  category: { id: string; name: string | null } | null;
 };
 
 type TransactionResponse = { items: Transaction[]; total: number; page: number; totalPages: number };
@@ -123,9 +125,8 @@ export default function TransactionsPage() {
   function beginEdit(transaction: Transaction) {
     setEditingId(transaction.id);
     setForm({
-      accountId: accounts.data?.find((account) => account.name === transaction.account.name)?.id ?? "",
-      categoryId:
-        categories.data?.find((category) => category.name === (transaction.category?.name ?? ""))?.id ?? "",
+      accountId: transaction.accountId,
+      categoryId: transaction.categoryId ?? "",
       type: transaction.type,
       amount: (transaction.amountCents / 100).toFixed(2),
       note: transaction.note ?? "",
