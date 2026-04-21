@@ -16,6 +16,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "mrGlassFinance",
   description: "Personal finance and budgeting SaaS",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "mrGlassFinance",
+    statusBarStyle: "default",
+  },
 };
 
 export default function RootLayout({
