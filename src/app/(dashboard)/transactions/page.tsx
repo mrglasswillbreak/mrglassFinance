@@ -25,6 +25,15 @@ type TransactionResponse = { items: Transaction[]; total: number; page: number; 
 
 export default function TransactionsPage() {
   const queryClient = useQueryClient();
+  const [filters, setFilters] = useState({
+    page: 1,
+    pageSize: 20,
+    accountId: "",
+    categoryId: "",
+    type: "",
+    startDate: "",
+    endDate: "",
+  });
   const [form, setForm] = useState({
     accountId: "",
     categoryId: "",
@@ -43,8 +52,19 @@ export default function TransactionsPage() {
     queryFn: () => apiFetch<Category[]>("/api/categories"),
   });
   const transactions = useQuery({
-    queryKey: ["transactions"],
-    queryFn: () => apiFetch<TransactionResponse>("/api/transactions?page=1&pageSize=50"),
+    queryKey: ["transactions", filters],
+    queryFn: () => {
+      const params = new URLSearchParams({
+        page: String(filters.page),
+        pageSize: String(filters.pageSize),
+      });
+      if (filters.accountId) params.set("accountId", filters.accountId);
+      if (filters.categoryId) params.set("categoryId", filters.categoryId);
+      if (filters.type) params.set("type", filters.type);
+      if (filters.startDate) params.set("startDate", new Date(filters.startDate).toISOString());
+      if (filters.endDate) params.set("endDate", new Date(filters.endDate).toISOString());
+      return apiFetch<TransactionResponse>(`/api/transactions?${params.toString()}`);
+    },
   });
 
   const createTx = useMutation({
