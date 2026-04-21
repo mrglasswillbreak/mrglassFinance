@@ -14,6 +14,7 @@ const schema = z.object({
 });
 
 type FormValues = z.infer<typeof schema>;
+type LoginResponse = { requiresOnboarding: boolean };
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,12 +34,12 @@ export default function LoginPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
     });
-    const payload = await response.json();
+    const payload = (await response.json()) as { data?: LoginResponse; error?: string };
     if (!response.ok) {
       setError("root", { message: payload.error ?? "Login failed" });
       return;
     }
-    router.replace("/dashboard");
+    router.replace(payload.data?.requiresOnboarding ? "/onboarding" : "/dashboard");
   });
 
   return (

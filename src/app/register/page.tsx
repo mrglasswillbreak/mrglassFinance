@@ -16,6 +16,7 @@ const schema = z.object({
 });
 
 type FormValues = z.infer<typeof schema>;
+type RegisterResponse = { requiresOnboarding: boolean };
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -35,12 +36,12 @@ export default function RegisterPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
     });
-    const payload = await response.json();
+    const payload = (await response.json()) as { data?: RegisterResponse; error?: string };
     if (!response.ok) {
       setError("root", { message: payload.error ?? "Registration failed" });
       return;
     }
-    router.replace("/dashboard");
+    router.replace(payload.data?.requiresOnboarding ? "/onboarding" : "/dashboard");
   });
 
   return (
