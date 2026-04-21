@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, LayoutDashboard, Receipt, Target, WalletCards, LineChart, Settings } from "lucide-react";
+import { Bell, LayoutDashboard, Receipt, Target, WalletCards, LineChart, Settings, Tags } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/store/ui-store";
@@ -11,6 +11,7 @@ const links = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/transactions", label: "Transactions", icon: Receipt },
   { href: "/budgets", label: "Budgets", icon: Target },
+  { href: "/categories", label: "Categories", icon: Tags },
   { href: "/accounts", label: "Accounts", icon: WalletCards },
   { href: "/insights", label: "Insights", icon: LineChart },
   { href: "/settings", label: "Settings", icon: Settings },
