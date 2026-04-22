@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     });
     const membership = created.members[0];
     if (!membership) {
-      return jsonError("Unable to create account", 500);
+      return jsonError("Failed to complete registration", 500);
     }
 
     const accessToken = await signAccessToken({
