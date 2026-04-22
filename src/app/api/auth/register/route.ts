@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { jsonCreated, jsonError, withErrorHandling } from "@/lib/http";
 import { registerSchema } from "@/lib/validation/auth";
@@ -26,52 +25,58 @@ export async function POST(request: Request) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const created = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const tenant = await tx.tenant.create({ data: { name: tenantName } });
-      const user = await tx.user.create({
-        data: { email, passwordHash, fullName },
-      });
-
-      const membership = await tx.tenantMember.create({
-        data: { tenantId: tenant.id, userId: user.id, role: "OWNER" },
-      });
-
-      await tx.account.create({
-        data: {
-          tenantId: tenant.id,
-          name: "Main Account",
-          type: "BANK",
-          currency: "USD",
-        },
-      });
-
-      await tx.category.createMany({
-        data: [
-          { tenantId: tenant.id, name: "Salary", type: "INCOME", isDefault: true, color: "#16a34a" },
-          { tenantId: tenant.id, name: "Food", type: "EXPENSE", isDefault: true, color: "#f59e0b" },
-          {
-            tenantId: tenant.id,
-            name: "Transportation",
-            type: "EXPENSE",
-            isDefault: true,
-            color: "#3b82f6",
+    const created = await prisma.tenant.create({
+      data: {
+        name: tenantName,
+        members: {
+          create: {
+            role: "OWNER",
+            user: {
+              create: { email, passwordHash, fullName },
+            },
           },
-        ],
-      });
-
-      return { user, membership };
+        },
+        accounts: {
+          create: {
+            name: "Main Account",
+            type: "BANK",
+            currency: "USD",
+          },
+        },
+        categories: {
+          create: [
+            { name: "Salary", type: "INCOME", isDefault: true, color: "#16a34a" },
+            { name: "Food", type: "EXPENSE", isDefault: true, color: "#f59e0b" },
+            { name: "Transportation", type: "EXPENSE", isDefault: true, color: "#3b82f6" },
+          ],
+        },
+      },
+      select: {
+        members: {
+          take: 1,
+          select: {
+            tenantId: true,
+            role: true,
+            user: { select: { id: true, email: true } },
+          },
+        },
+      },
     });
+    const membership = created.members[0];
+    if (!membership) {
+      return jsonError("Unable to create account", 500);
+    }
 
     const accessToken = await signAccessToken({
-      sub: created.user.id,
-      tenantId: created.membership.tenantId,
-      role: created.membership.role,
+      sub: membership.user.id,
+      tenantId: membership.tenantId,
+      role: membership.role,
     });
     const refreshToken = generateRefreshToken();
 
     await prisma.refreshToken.create({
       data: {
-        userId: created.user.id,
+        userId: membership.user.id,
         tokenHash: hashToken(refreshToken),
         expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
@@ -80,7 +85,7 @@ export async function POST(request: Request) {
     await setAuthCookies(accessToken, refreshToken);
 
     return jsonCreated({
-      user: { id: created.user.id, email: created.user.email },
+      user: { id: membership.user.id, email: membership.user.email },
       requiresOnboarding: true,
     });
   });
