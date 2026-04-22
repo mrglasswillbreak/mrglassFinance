@@ -7,8 +7,9 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma migrate deploy && next build",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "db:deploy": "if [ -n \"$DATABASE_URL\" ]; then prisma migrate deploy; else echo \"Skipping prisma migrate deploy because DATABASE_URL is not set\"; fi",
+    "build": "prisma generate && npm run db:deploy && next build",
+    "vercel-build": "npm run build",
     "start": "next start",
     "lint": "eslint",
     "test": "jest --passWithNoTests",
