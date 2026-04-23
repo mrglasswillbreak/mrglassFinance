@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { PageTransition } from "@/components/ui/page-transition";
 import { apiFetch } from "@/lib/api/client";
 import { formatCurrency, toCents } from "@/lib/format";
 
@@ -74,7 +75,8 @@ export default function BudgetsPage() {
   });
 
   return (
-    <div className="space-y-4">
+    <PageTransition>
+      <div className="space-y-4">
       <Card>
         <h2 className="mb-3 text-sm font-semibold">Create monthly budget</h2>
         <div className="grid gap-3 md:grid-cols-3">
@@ -107,18 +109,18 @@ export default function BudgetsPage() {
           {budgets.data?.map((budget) => {
             const itemStatus = status.data?.find((item) => item.id === budget.id);
             return (
-              <div key={budget.id} className="rounded-md border border-slate-200 p-3">
+              <div key={budget.id} className="rounded-xl border border-border p-3">
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-medium">{budget.category?.name ?? budget.account?.name ?? "Overall"}</p>
-                  <p className="text-sm text-slate-600">{formatCurrency(budget.limitCents)}</p>
+                  <p className="text-sm text-muted">{formatCurrency(budget.limitCents)}</p>
                 </div>
-                <div className="mt-2 h-2 rounded bg-slate-200">
+                <div className="mt-2 h-2 rounded bg-surface-alt">
                   <div
                     className={`h-2 rounded ${itemStatus?.exceeded ? "bg-red-500" : itemStatus?.thresholdReached ? "bg-amber-500" : "bg-green-500"}`}
                     style={{ width: `${Math.min(itemStatus?.progressPct ?? 0, 100)}%` }}
                   />
                 </div>
-                <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
+                <div className="mt-2 flex items-center justify-between text-xs text-muted">
                   <span>{formatCurrency(itemStatus?.spentCents ?? 0)} spent</span>
                   <span>{itemStatus?.progressPct ?? 0}%</span>
                 </div>
@@ -130,6 +132,7 @@ export default function BudgetsPage() {
           })}
         </div>
       </Card>
-    </div>
+      </div>
+    </PageTransition>
   );
 }

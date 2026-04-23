@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { PageTransition } from "@/components/ui/page-transition";
 import { apiFetch } from "@/lib/api/client";
 
 type Profile = { id: string; email: string; fullName: string | null };
@@ -71,7 +72,8 @@ export default function SettingsPage() {
   });
 
   return (
-    <div className="space-y-4">
+    <PageTransition>
+      <div className="space-y-4">
       <Card>
         <h2 className="mb-3 text-sm font-semibold">Profile</h2>
         <div className="grid gap-3 md:grid-cols-3">
@@ -128,7 +130,7 @@ export default function SettingsPage() {
         <h2 className="mb-3 text-sm font-semibold">Notifications</h2>
         <div className="space-y-2">
           {notifications.data?.map((item) => (
-            <div key={item.id} className="rounded-md border border-slate-200 p-3">
+            <div key={item.id} className="rounded-xl border border-border p-3">
               <div className="flex items-center justify-between">
                 <p className="font-medium">{item.title}</p>
                 {!item.readAt && (
@@ -137,11 +139,12 @@ export default function SettingsPage() {
                   </Button>
                 )}
               </div>
-              <p className="text-sm text-slate-600">{item.body}</p>
+              <p className="text-sm text-muted">{item.body}</p>
             </div>
           ))}
         </div>
       </Card>
-    </div>
+      </div>
+    </PageTransition>
   );
 }

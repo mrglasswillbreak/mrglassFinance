@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { PageTransition } from "@/components/ui/page-transition";
 import { apiFetch } from "@/lib/api/client";
 
 type Account = {
@@ -49,7 +50,8 @@ export default function AccountsPage() {
   });
 
   return (
-    <div className="space-y-4">
+    <PageTransition>
+      <div className="space-y-4">
       <Card>
         <h2 className="mb-3 text-sm font-semibold">Add account</h2>
         <div className="grid gap-3 md:grid-cols-4">
@@ -71,10 +73,10 @@ export default function AccountsPage() {
         <h2 className="mb-3 text-sm font-semibold">Accounts</h2>
         <div className="space-y-2">
           {accounts.data?.map((account) => (
-            <div key={account.id} className="flex items-center justify-between rounded-md border border-slate-200 p-3">
+            <div key={account.id} className="flex items-center justify-between rounded-xl border border-border p-3">
               <div>
                 <p className="font-medium">{account.name}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted">
                   {account.type} · {account.currency}
                 </p>
               </div>
@@ -85,6 +87,7 @@ export default function AccountsPage() {
           ))}
         </div>
       </Card>
-    </div>
+      </div>
+    </PageTransition>
   );
 }
