@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 type Theme = "light" | "dark";
 
-const THEME_STORAGE_KEY = "mrglassfinance-theme";
+const THEME_STORAGE_KEY = "mrGlassFinance-theme";
 
 function getSystemTheme(): Theme {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -19,22 +19,16 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeToggle({ className }: { className?: string }) {
-  const [mounted, setMounted] = useState(false);
-  const [theme, setTheme] = useState<Theme>("light");
-
-  useEffect(() => {
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "light";
     const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-    const initialTheme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : getSystemTheme();
-    setTheme(initialTheme);
-    applyTheme(initialTheme);
-    setMounted(true);
-  }, []);
+    return storedTheme === "dark" || storedTheme === "light" ? storedTheme : getSystemTheme();
+  });
 
   useEffect(() => {
-    if (!mounted) return;
     applyTheme(theme);
     localStorage.setItem(THEME_STORAGE_KEY, theme);
-  }, [mounted, theme]);
+  }, [theme]);
 
   return (
     <motion.button
@@ -46,7 +40,7 @@ export function ThemeToggle({ className }: { className?: string }) {
         "inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface text-muted shadow-sm transition-colors hover:bg-surface-alt hover:text-foreground",
         className,
       )}
-      aria-label={mounted && theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.span
