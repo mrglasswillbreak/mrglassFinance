@@ -40,10 +40,15 @@ html.dark {
 
 body {
   background: var(--background);
-  background:
-    radial-gradient(circle at top left, color-mix(in srgb, var(--primary) 16%, transparent), transparent 45%),
-    radial-gradient(circle at bottom right, color-mix(in srgb, #22c55e 14%, transparent), transparent 40%),
-    var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+@supports (color: color-mix(in srgb, white 50%, black)) {
+  body {
+    background:
+      radial-gradient(circle at top left, color-mix(in srgb, var(--primary) 16%, transparent), transparent 45%),
+      radial-gradient(circle at bottom right, color-mix(in srgb, #22c55e 14%, transparent), transparent 40%),
+      var(--background);
+  }
 }

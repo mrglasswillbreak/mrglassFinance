@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
@@ -15,6 +15,8 @@ const featureCards = [
 ];
 
 export function HomePageClientEnhancements({ section }: Props) {
+  const shouldReduceMotion = useReducedMotion();
+
   if (section === "toggle") {
     return <ThemeToggle />;
   }
@@ -26,9 +28,9 @@ export function HomePageClientEnhancements({ section }: Props) {
         return (
           <motion.div
             key={item.title}
-            initial={{ opacity: 0, y: 16 }}
+            initial={shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.05 }}
+            transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.3, delay: index * 0.05 }}
             className="rounded-2xl border border-border bg-surface-alt p-4"
           >
             <Icon className="mb-3 h-5 w-5 text-primary" />
