@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Card } from "@/components/ui/card";
+import { PageTransition } from "@/components/ui/page-transition";
 import { apiFetch } from "@/lib/api/client";
 import { formatCurrency } from "@/lib/format";
 
@@ -43,7 +44,13 @@ export default function DashboardPage() {
   });
 
   if (summary.isLoading || trends.isLoading) {
-    return <div className="grid gap-4 md:grid-cols-3">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-28 animate-pulse rounded-xl bg-slate-200" />)}</div>;
+    return (
+      <div className="grid gap-4 md:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-28 animate-pulse rounded-2xl bg-surface-alt" />
+        ))}
+      </div>
+    );
   }
 
   if (summary.isError || trends.isError || !summary.data || !trends.data) {
@@ -58,18 +65,19 @@ export default function DashboardPage() {
   }));
 
   return (
-    <div className="space-y-4">
+    <PageTransition>
+      <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <p className="text-sm text-slate-500">Income</p>
+          <p className="text-sm text-muted">Income</p>
           <p className="mt-2 text-2xl font-semibold">{formatCurrency(kpis.incomeCents)}</p>
         </Card>
         <Card>
-          <p className="text-sm text-slate-500">Expenses</p>
+          <p className="text-sm text-muted">Expenses</p>
           <p className="mt-2 text-2xl font-semibold">{formatCurrency(kpis.expenseCents)}</p>
         </Card>
         <Card>
-          <p className="text-sm text-slate-500">Net</p>
+          <p className="text-sm text-muted">Net</p>
           <p className="mt-2 text-2xl font-semibold">{formatCurrency(kpis.netCents)}</p>
         </Card>
       </div>
@@ -118,7 +126,7 @@ export default function DashboardPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-slate-500">
+              <tr className="border-b border-border text-left text-muted">
                 <th className="pb-2 font-medium">Date</th>
                 <th className="pb-2 font-medium">Category</th>
                 <th className="pb-2 font-medium">Type</th>
@@ -127,7 +135,7 @@ export default function DashboardPage() {
             </thead>
             <tbody>
               {summary.data.recentTransactions.map((item) => (
-                <tr key={item.id} className="border-b border-slate-100">
+                <tr key={item.id} className="border-b border-border/50">
                   <td className="py-2">{new Date(item.occurredAt).toLocaleDateString()}</td>
                   <td className="py-2">{item.category?.name ?? "Uncategorized"}</td>
                   <td className="py-2">{item.type}</td>
@@ -138,6 +146,7 @@ export default function DashboardPage() {
           </table>
         </div>
       </Card>
-    </div>
+      </div>
+    </PageTransition>
   );
 }

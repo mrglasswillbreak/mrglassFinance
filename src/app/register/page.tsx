@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Landmark } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 const schema = z.object({
   fullName: z.string().min(2),
@@ -45,9 +48,23 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
-      <form onSubmit={onSubmit} className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6">
+      <motion.form
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        onSubmit={onSubmit}
+        className="w-full max-w-md rounded-2xl border border-border bg-surface/95 p-6 shadow-xl shadow-black/10 backdrop-blur-sm"
+      >
+        <div className="mb-6 flex items-center justify-between">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-alt px-3 py-1 text-xs text-muted">
+            <Landmark className="h-3.5 w-3.5 text-primary" />
+            mrGlassFinance
+          </div>
+          <ThemeToggle />
+        </div>
+
         <h1 className="mb-1 text-2xl font-semibold">Create account</h1>
-        <p className="mb-6 text-sm text-slate-600">Start tracking your finances in minutes.</p>
+        <p className="mb-6 text-sm text-muted">Start tracking your finances in minutes.</p>
         <div className="mb-4 space-y-1">
           <label htmlFor="fullName" className="text-sm font-medium">
             Full name
@@ -80,14 +97,14 @@ export default function RegisterPage() {
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Creating account..." : "Create account"}
         </Button>
-        <p className="mt-4 text-sm text-slate-600">
+        <p className="mt-4 text-sm text-muted">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-slate-900">
+          <Link href="/login" className="font-medium text-primary">
             Sign in
           </Link>
           .
         </p>
-      </form>
+      </motion.form>
     </div>
   );
 }

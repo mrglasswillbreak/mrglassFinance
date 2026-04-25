@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { PageTransition } from "@/components/ui/page-transition";
 import { apiFetch } from "@/lib/api/client";
 import { formatCurrency, toCents } from "@/lib/format";
 
@@ -79,11 +80,12 @@ export default function TransactionsPage() {
   });
 
   if (accounts.isLoading || categories.isLoading || transactions.isLoading) {
-    return <div className="h-44 animate-pulse rounded-xl bg-slate-200" />;
+    return <div className="h-44 animate-pulse rounded-2xl bg-surface-alt" />;
   }
 
   return (
-    <div className="space-y-4">
+    <PageTransition>
+      <div className="space-y-4">
       <Card>
         <h2 className="mb-3 text-sm font-semibold">Add transaction</h2>
         <div className="grid gap-3 md:grid-cols-6">
@@ -139,7 +141,7 @@ export default function TransactionsPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-slate-500">
+              <tr className="border-b border-border text-left text-muted">
                 <th className="pb-2 font-medium">Date</th>
                 <th className="pb-2 font-medium">Account</th>
                 <th className="pb-2 font-medium">Category</th>
@@ -150,7 +152,7 @@ export default function TransactionsPage() {
             </thead>
             <tbody>
               {transactions.data?.items.map((transaction) => (
-                <tr key={transaction.id} className="border-b border-slate-100">
+                <tr key={transaction.id} className="border-b border-border/50">
                   <td className="py-2">{new Date(transaction.occurredAt).toLocaleString()}</td>
                   <td className="py-2">{transaction.account.name}</td>
                   <td className="py-2">{transaction.category?.name ?? "Uncategorized"}</td>
@@ -167,6 +169,7 @@ export default function TransactionsPage() {
           </table>
         </div>
       </Card>
-    </div>
+      </div>
+    </PageTransition>
   );
 }
