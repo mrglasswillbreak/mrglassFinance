@@ -37,7 +37,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       whileHover={{ scale: 1.04 }}
       onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
       className={cn(
-        "inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface text-muted shadow-sm transition-colors hover:bg-surface-alt hover:text-foreground",
+        "inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-surface text-muted shadow-sm transition-colors hover:bg-surface-alt hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
         className,
       )}
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}

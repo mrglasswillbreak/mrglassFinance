@@ -1,10 +1,7 @@
-"use client";
-
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { HomePageClientEnhancements } from "@/components/marketing/home-page-client-enhancements";
 
 export default function Home() {
   return (
@@ -15,17 +12,15 @@ export default function Home() {
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             Personal Finance SaaS
           </div>
-          <ThemeToggle />
+          <HomePageClientEnhancements section="toggle" />
         </div>
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
-          <h1 className="mb-4 max-w-2xl text-4xl font-bold tracking-tight md:text-5xl">
-            Take control of your money with clarity.
-          </h1>
-          <p className="mb-8 max-w-2xl text-base text-muted md:text-lg">
-            Track transactions, set smarter budgets, and visualize spending trends across all your accounts.
-          </p>
-        </motion.div>
+        <h1 className="mb-4 max-w-2xl text-4xl font-bold tracking-tight md:text-5xl">
+          Take control of your money with clarity.
+        </h1>
+        <p className="mb-8 max-w-2xl text-base text-muted md:text-lg">
+          Track transactions, set smarter budgets, and visualize spending trends across all your accounts.
+        </p>
 
         <div className="mb-8 flex flex-wrap gap-3">
           <Link href="/register">
@@ -38,28 +33,7 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-3">
-          {[
-            { icon: TrendingUp, title: "Live insights", body: "Understand where your money goes each month." },
-            { icon: ShieldCheck, title: "Reliable data", body: "Stay on top of accounts, budgets, and limits." },
-            { icon: Sparkles, title: "Clean workflow", body: "A focused interface built for daily financial habits." },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="rounded-2xl border border-border bg-surface-alt p-4"
-              >
-                <Icon className="mb-3 h-5 w-5 text-primary" />
-                <p className="text-sm font-semibold">{item.title}</p>
-                <p className="mt-1 text-sm text-muted">{item.body}</p>
-              </motion.div>
-            );
-          })}
-        </div>
+        <HomePageClientEnhancements section="cards" />
       </main>
     </div>
   );
